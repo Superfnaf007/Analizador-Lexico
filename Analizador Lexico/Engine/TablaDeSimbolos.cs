@@ -1,21 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AnalizadorLexico.Models;
 
 namespace AnalizadorLexico.Engine
 {
     public class TablaDeSimbolos
     {
-        private List<SimboloTabla> listaSimbolos;
-        private HashSet<string> palabrasReservadas;
+        private SimboloTabla[] arregloSimbolos;
+        private int contadorSimbolos;
+        private string[] palabrasReservadas;
 
         public TablaDeSimbolos()
         {
-            listaSimbolos = new List<SimboloTabla>();
-            palabrasReservadas = new HashSet<string>
+            arregloSimbolos = new SimboloTabla[1000];
+            contadorSimbolos = 0;
+
+            palabrasReservadas = new string[]
             {
                 "using", "namespace", "class", "public", "private", "protected",
                 "static", "void", "int", "double", "float", "string", "bool",
@@ -25,17 +25,47 @@ namespace AnalizadorLexico.Engine
 
         public bool EsPalabraReservada(string lexema)
         {
-            return palabrasReservadas.Contains(lexema);
+            for (int i = 0; i < palabrasReservadas.Length; i++)
+            {
+                if (palabrasReservadas[i] == lexema)
+                    return true;
+            }
+            return false;
         }
 
         public void AgregarOActualizar(string nombre, string tipoToken, int linea, int columna)
         {
-            
+            if (EsPalabraReservada(nombre))
+            {
+                return;
+            }
+
+            for (int i = 0; i < contadorSimbolos; i++)
+            {
+                if (arregloSimbolos[i].Nombre == nombre)
+                {
+                    return; 
+                }
+            }
+
+           
+            int nuevoId = contadorSimbolos + 1;
+            SimboloTabla nuevoSimbolo = new SimboloTabla(nuevoId, nombre, tipoToken, linea, columna);
+            arregloSimbolos[contadorSimbolos] = nuevoSimbolo;
+            contadorSimbolos++;
         }
 
-        public List<SimboloTabla> ObtenerSimbolos()
+        public SimboloTabla[] ObtenerSimbolos()
         {
-            return listaSimbolos;
+            SimboloTabla[] resultado = new SimboloTabla[contadorSimbolos];
+            Array.Copy(arregloSimbolos, resultado, contadorSimbolos);
+            return resultado;
+        }
+
+        public void Limpiar()
+        {
+            contadorSimbolos = 0;
+            arregloSimbolos = new SimboloTabla[1000];
         }
     }
 }
