@@ -62,7 +62,6 @@ namespace AnalizadorLexico.Engine
             {
                 char caracterActual = codigoFuente[posicion];
 
-                // Espacios y separadores
                 if (char.IsWhiteSpace(caracterActual))
                 {
                     if (caracterActual == '\n')
@@ -72,7 +71,6 @@ namespace AnalizadorLexico.Engine
                     }
                     else if (caracterActual == '\r')
                     {
-                        // ignorar retorno de carro
                     }
                     else
                     {
@@ -82,12 +80,10 @@ namespace AnalizadorLexico.Engine
                     continue;
                 }
 
-                // Comentarios: // o /* */
                 if (caracterActual == '/' && Peek() == '/')
                 {
                     int inicioCol = columnaActual;
                     int inicioPos = posicion;
-                    // consumir hasta fin de linea
                     posicion += 2;
                     columnaActual += 2;
                     while (posicion < codigoFuente.Length && codigoFuente[posicion] != '\n')
@@ -141,7 +137,6 @@ namespace AnalizadorLexico.Engine
                     continue;
                 }
 
-                // Cadenas de caracteres
                 if (caracterActual == '"')
                 {
                     int inicioCol = columnaActual;
@@ -155,7 +150,6 @@ namespace AnalizadorLexico.Engine
                         char c = codigoFuente[posicion];
                         if (c == '\\')
                         {
-                            // escapar siguiente caracter
                             posicion += 2;
                             columnaActual += 2;
                             continue;
@@ -191,7 +185,6 @@ namespace AnalizadorLexico.Engine
                     continue;
                 }
 
-                // Caracteres literales
                 if (caracterActual == '\'')
                 {
                     int inicioCol = columnaActual;
@@ -204,8 +197,7 @@ namespace AnalizadorLexico.Engine
                     {
                         if (codigoFuente[posicion] == '\\')
                         {
-                            // escape
-                            posicion += 2; // escape + char
+                            posicion += 2; 
                             columnaActual += 2;
                         }
                         else
@@ -232,7 +224,6 @@ namespace AnalizadorLexico.Engine
                     continue;
                 }
 
-                // Identificadores y palabras reservadas
                 if (EsLetra(caracterActual) || caracterActual == '_')
                 {
                     int inicioCol = columnaActual;
@@ -255,7 +246,6 @@ namespace AnalizadorLexico.Engine
                     continue;
                 }
 
-                // Numeros: enteros y reales
                 if (char.IsDigit(caracterActual))
                 {
                     int inicioCol = columnaActual;
@@ -266,10 +256,8 @@ namespace AnalizadorLexico.Engine
                         posicion++;
                         columnaActual++;
                     }
-                    // Caso: identificador inválido que empieza con dígito (ej. 2numero)
                     if (posicion < codigoFuente.Length && (EsLetra(codigoFuente[posicion]) || codigoFuente[posicion] == '_'))
                     {
-                        // consumir la secuencia que forma el identificador mal formado
                         int fin = posicion + 1;
                         while (fin < codigoFuente.Length && (EsLetraODigito(codigoFuente[fin]) || codigoFuente[fin] == '_'))
                         {
@@ -277,7 +265,6 @@ namespace AnalizadorLexico.Engine
                         }
                         string mal = codigoFuente.Substring(inicioPos, fin - inicioPos);
                         AgregarError(mal, "Identificador inválido: empieza con dígito", lineaActual, inicioCol);
-                        // avanzar la posición al final del lexema mal formado
                         columnaActual += (fin - posicion);
                         posicion = fin;
                         continue;
@@ -297,7 +284,6 @@ namespace AnalizadorLexico.Engine
                         }
                         else
                         {
-                            // punto sin dígitos después -> error de número mal formado
                             int largo = Math.Min(codigoFuente.Length - inicioPos, posicion - inicioPos + 1);
                             if (largo <= 0) largo = codigoFuente.Length - inicioPos;
                             AgregarError(codigoFuente.Substring(inicioPos, largo), "Número real mal formado", lineaActual, inicioCol);
@@ -309,7 +295,6 @@ namespace AnalizadorLexico.Engine
                     continue;
                 }
 
-                // Operadores y delimitadores multi-char
                 int colAntes = columnaActual;
                 string two = posicion + 1 < codigoFuente.Length ? codigoFuente.Substring(posicion, 2) : null;
                 switch (two)
@@ -328,7 +313,6 @@ namespace AnalizadorLexico.Engine
                     case "/=": AgregarToken("/=", "OPERADOR_ASIGNACION_COMPUESTA", lineaActual, colAntes); posicion += 2; columnaActual += 2; continue;
                 }
 
-                // Operadores y delimitadores de un caracter
                 switch (caracterActual)
                 {
                     case '+': AgregarToken("+", "OPERADOR_ARITMETICO", lineaActual, columnaActual); posicion++; columnaActual++; break;
@@ -350,7 +334,6 @@ namespace AnalizadorLexico.Engine
                     case ',': AgregarToken(",", "COMA", lineaActual, columnaActual); posicion++; columnaActual++; break;
                     case '.': AgregarToken(".", "PUNTO", lineaActual, columnaActual); posicion++; columnaActual++; break;
                     default:
-                        // caracter no reconocido
                         AgregarError(caracterActual.ToString(), "Caracter no reconocido", lineaActual, columnaActual);
                         posicion++;
                         columnaActual++;

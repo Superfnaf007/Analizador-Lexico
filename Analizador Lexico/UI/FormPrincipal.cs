@@ -18,33 +18,28 @@ namespace AnalizadorLexico.UI
         public FormPrincipal()
         {
             InitializeComponent();
-            // inicializar grids inmediatamente para evitar que falten columnas
             InicializarGrids();
         }
 
         private void FormPrincipal_Load(object sender, EventArgs e)
         {
-            // inicializar tablas de datos
             InicializarGrids();
         }
 
         private void InicializarGrids()
         {
-            // Tokens grid
             dgvTokens.Columns.Clear();
             dgvTokens.Columns.Add("Linea", "Linea");
             dgvTokens.Columns.Add("Columna", "Columna");
             dgvTokens.Columns.Add("Tipo", "Tipo");
             dgvTokens.Columns.Add("Lexema", "Lexema");
 
-            // Errores grid
             dgvErrores.Columns.Clear();
             dgvErrores.Columns.Add("Linea", "Linea");
             dgvErrores.Columns.Add("Columna", "Columna");
             dgvErrores.Columns.Add("Descripcion", "Descripcion");
             dgvErrores.Columns.Add("Texto", "Texto");
 
-            // Simbolos grid
             dgvSimbolos.Columns.Clear();
             dgvSimbolos.Columns.Add("Id", "Id");
             dgvSimbolos.Columns.Add("Nombre", "Nombre");
@@ -77,7 +72,6 @@ namespace AnalizadorLexico.UI
                 motorLexico = new Engine.AnalizadorLexico(codigo);
                 motorLexico.Escanear();
 
-                // Mostrar tokens
                 dgvTokens.Rows.Clear();
                 var tokens = motorLexico.ObtenerTokens();
                 foreach (var t in tokens)
@@ -85,7 +79,6 @@ namespace AnalizadorLexico.UI
                     dgvTokens.Rows.Add(t.Linea, t.Columna, t.Tipo, t.Lexema);
                 }
 
-                // Mostrar errores
                 dgvErrores.Rows.Clear();
                 var errores = motorLexico.ObtenerErrores();
                 foreach (var err in errores)
@@ -93,7 +86,6 @@ namespace AnalizadorLexico.UI
                     dgvErrores.Rows.Add(err.Linea, err.Columna, err.Descripcion, err.CaracterOTexto);
                 }
 
-            // Mostrar tabla de símbolos
             dgvSimbolos.Rows.Clear();
             var simbolos = motorLexico.TablaSimbolos.ObtenerSimbolos();
             foreach (var s in simbolos)
